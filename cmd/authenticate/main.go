@@ -15,10 +15,13 @@ import (
 func main() {
 	var debug bool
 	var deviceID string
+	var scopestr string
 	var auth *oauthd.Authenticator
+	var scopes []string
 
 	flag.BoolVar(&debug, "d", false, "debug mode")
 	flag.StringVar(&deviceID, "device", "", "optional device id for some providers")
+	flag.StringVar(&scopestr, "scope", "", "optional comma-delimited list of oauth scopes")
 	flag.Parse()
 
 	args := flag.Args()
@@ -30,13 +33,18 @@ func main() {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
+	if scopestr != "" {
+		scopes = strings.Split(scopestr, ",")
+	}
+
 	switch strings.ToLower(args[0]) {
 	case "github":
 		auth = oauthd.New(github.New(flag.Arg(1), http.DefaultClient))
 	case "yandex":
 		auth = oauthd.New(yandex.New(flag.Arg(1), flag.Arg(2), deviceID, http.DefaultClient))
 	}
-	code, err := auth.RequestCode(nil)
+
+	code, err := auth.RequestCode(scopes)
 	if err != nil {
 		logrus.WithError(err).Fatal("error requesting code")
 	}
