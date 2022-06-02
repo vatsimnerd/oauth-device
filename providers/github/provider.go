@@ -72,7 +72,7 @@ func (e ErrorResponse) Error() string {
 func (p *Provider) RequestCode(scopes []string) (oauthd.ODProviderCode, error) {
 	form := url.Values{}
 	form.Add("client_id", p.clientID)
-	form.Add("scope", strings.Join(scopes, ","))
+	form.Add("scope", strings.Join(scopes, " "))
 	req, err := http.NewRequest("POST", codeRequestURL, strings.NewReader(form.Encode()))
 	if err != nil {
 		log.WithError(err).Debug("error creating request")
